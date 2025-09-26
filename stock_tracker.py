@@ -1,6 +1,8 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
+import plotly.graph_objects as go
+import requests
 
 # ---------------- Page Config ----------------
 st.set_page_config(
@@ -9,12 +11,17 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- Header ----------------
-st.title("📊 My Custom Stock Tracker")
-st.markdown("Track your favorite stocks with style 🚀")
-
 # ---------------- Sidebar ----------------
 st.sidebar.header("⚙️ Settings")
+
+# Theme selection
+theme = st.sidebar.radio("Choose Theme", ["Dark", "Light", "Custom"])
+if theme == "Dark":
+    chart_theme = "plotly_dark"
+elif theme == "Light":
+    chart_theme = "plotly_white"
+else:
+    chart_theme = "seaborn"
 
 # Predefined stock options
 stock_options = {
@@ -28,7 +35,6 @@ stock_options = {
     "Netflix (NFLX)": "NFLX"
 }
 
-# Dropdown or custom input
 selected_stock = st.sidebar.selectbox("Choose a Stock", list(stock_options.keys()))
 ticker = stock_options[selected_stock]
 custom_ticker = st.sidebar.text_input("Or enter custom ticker (e.g. IBM)")
@@ -43,6 +49,9 @@ interval = st.sidebar.selectbox("Select Interval", ["1d", "1wk", "1mo"])
 # Multiple stock comparison
 compare_stocks = st.sidebar.multiselect("Compare with other stocks", list(stock_options.keys()))
 
+# Page Navigation
+page = st.sidebar.radio("Navigation", ["📊 Analysis", "📰 News"])
+
 # ---------------- Fetch Data ----------------
 try:
     stock = yf.Ticker(ticker)
@@ -51,44 +60,6 @@ try:
     if data.empty:
         st.error("⚠️ No data found. Try another stock.")
     else:
-        # ---------------- Stock Info ----------------
-        info = stock.info
-        st.subheader(f"ℹ️ {ticker} Stock Information")
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            st.metric("Current Price", f"${info.get('currentPrice', 'N/A')}")
-        with col2:
-            st.metric("Market Cap", f"${info.get('marketCap', 'N/A'):,}")
-        with col3:
-            st.metric("P/E Ratio", info.get("trailingPE", "N/A"))
-
-        # ---------------- Layout ----------------
-        col1, col2 = st.columns([2, 3])
-
-        with col1:
-            st.subheader(f"📌 {ticker} Data")
-            st.dataframe(data.tail(10))  # last 10 rows
-
-        with col2:
-            st.subheader(f"📈 {ticker} Closing Price Chart")
-            st.line_chart(data["Close"])
-
-        # ---------------- Comparison Chart ----------------
-        if compare_stocks:
-            st.subheader("📊 Stock Comparison")
-            compare_dict = {ticker: data["Close"]}
-
-            for stock_name in compare_stocks:
-                comp_ticker = stock_options[stock_name]
-                comp_data = yf.Ticker(comp_ticker).history(period=period, interval=interval)
-                if not comp_data.empty:
-                    compare_dict[comp_ticker] = comp_data["Close"]
-
-            compare_df = pd.DataFrame(compare_dict)
-            st.line_chart(compare_df)
-
-        st.success(f"✅ Successfully loaded data for {ticker}")
-
-except Exception as e:
-    st.error(f"❌ Error: {e}")
+        # ---------------- Analysis Page ----------------
+        if page == "📊 Analysis":
+            st.title(f"📈 {ticker
