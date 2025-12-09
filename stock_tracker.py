@@ -11,10 +11,10 @@ st.set_page_config(
 
 st.sidebar.header("⚙️ Settings")
 
-# Page Navigation
+
 page = st.sidebar.radio("Navigate", ["📊 Analysis", "📈 Chart", "📋 Data Table"])
 
-# Predefined stock options
+
 stock_options = {
     "Apple (AAPL)": "AAPL",
     "Microsoft (MSFT)": "MSFT",
