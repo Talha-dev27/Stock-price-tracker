@@ -2,14 +2,13 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 
-# ---------------- Page Config ----------------
+
 st.set_page_config(
     page_title="My Stock Tracker",
     page_icon="📈",
     layout="wide"
 )
-
-# ---------------- Sidebar ----------------
+
 st.sidebar.header("⚙️ Settings")
 
 # Page Navigation
@@ -33,14 +32,14 @@ stock_options = {
 selected_stock = st.sidebar.selectbox("Choose a Stock", list(stock_options.keys()))
 ticker = stock_options[selected_stock]
 
-# Time and interval options
+
 period = st.sidebar.selectbox("Select Time Period", ["1mo", "3mo", "6mo", "1y", "5y", "max"])
 interval = st.sidebar.selectbox("Select Interval", ["1d", "1wk", "1mo"])
 
-# Theme toggle
+
 theme = st.sidebar.radio("Theme", ["🌞 Light", "🌙 Dark"])
 
-# Custom CSS for themes
+
 if theme == "🌙 Dark":
     st.markdown(
         """
@@ -54,7 +53,7 @@ if theme == "🌙 Dark":
         unsafe_allow_html=True,
     )
 
-# ---------------- Fetch Data ----------------
+
 try:
     stock = yf.Ticker(ticker)
     data = stock.history(period=period, interval=interval)
@@ -62,7 +61,7 @@ try:
     if data.empty:
         st.error("⚠️ No data found. Try another stock.")
     else:
-        # ---------------- Analysis Page ----------------
+        
         if page == "📊 Analysis":
             st.title(f"📈 {ticker} Stock Analysis")
 
@@ -75,12 +74,12 @@ try:
             with col3:
                 st.metric("P/E Ratio", info.get("trailingPE", "N/A"))
 
-        # ---------------- Chart Page ----------------
+        
         elif page == "📈 Chart":
             st.title(f"📉 {ticker} Stock Price Chart")
             st.line_chart(data["Close"])
 
-        # ---------------- Data Table Page ----------------
+         
         elif page == "📋 Data Table":
             st.title(f"📊 {ticker} Historical Data")
             st.dataframe(data.tail(20))
